@@ -1,0 +1,18 @@
+{
+  "name": "nft-marketplace-monorepo",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "dev": "concurrently -c \"cyan,magenta\" -n api,web \"pnpm --filter api dev\" \"pnpm --filter web dev\"",
+    "build": "pnpm --filter api build && pnpm --filter web build",
+    "start": "concurrently -c \"cyan,magenta\" -n api,web \"pnpm --filter api start\" \"pnpm --filter web start\"",
+    "db:migrate": "pnpm --filter api db:migrate",
+    "db:seed": "pnpm --filter api db:seed",
+    "db:setup": "pnpm db:migrate && pnpm db:seed",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "prettier": "^3.6.2"
+  }
+}
