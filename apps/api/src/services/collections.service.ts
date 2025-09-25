@@ -1,13 +1,14 @@
-import { Collection } from '../models/Collection';
-import { NFT } from '../models/NFT';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Collection } from "../models/Collection";
+import { NFT } from "../models/NFT";
 
 export const CollectionsService = {
   async list(query: any) {
     const page = Math.max(Number(query.page) || 1, 1);
     const limit = Math.min(Number(query.limit) || 12, 48);
-    const q = (query.q as string) || '';
+    const q = (query.q as string) || "";
     const category = (query.category as string) || undefined;
-    const creator = query.creator === 'true' ? query.userId : undefined;
+    const creator = query.creator === "true" ? query.userId : undefined;
 
     const filter: any = {};
     if (q) filter.$text = { $search: q };
@@ -27,7 +28,7 @@ export const CollectionsService = {
 
   async getDetail(id: string) {
     const col = await Collection.findById(id).lean();
-    if (!col) throw new Error('Not found');
+    if (!col) throw new Error("Not found");
     const nfts = await NFT.find({ collectionId: col._id })
       .sort({ createdAt: -1 })
       .limit(24)

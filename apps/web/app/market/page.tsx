@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import useSWRInfinite from 'swr/infinite';
 import { fetcher } from '@/lib/api';

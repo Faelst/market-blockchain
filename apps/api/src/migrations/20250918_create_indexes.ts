@@ -1,7 +1,9 @@
-import { User } from '../models/User';
-import { Collection } from '../models/Collection';
-import { NFT } from '../models/NFT';
-import { Transaction } from '../models/Transaction';
+/* eslint-disable no-empty */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { User } from "../models/User";
+import { Collection } from "../models/Collection";
+import { NFT } from "../models/NFT";
+import { Transaction } from "../models/Transaction";
 
 export async function up() {
   await Promise.all([
@@ -21,10 +23,11 @@ export async function up() {
 export async function down() {
   try {
     await Promise.all([
-      NFT.collection.dropIndex('collectionId_1_onSale_1_price_1').catch(() => {}),
-      NFT.collection.dropIndex('owner_1_createdAt_-1').catch(() => {}),
-      Transaction.collection.dropIndex('nft_1_createdAt_-1').catch(() => {}),
+      NFT.collection
+        .dropIndex("collectionId_1_onSale_1_price_1")
+        .catch(() => {}),
+      NFT.collection.dropIndex("owner_1_createdAt_-1").catch(() => {}),
+      Transaction.collection.dropIndex("nft_1_createdAt_-1").catch(() => {}),
     ]);
   } catch {}
 }
-

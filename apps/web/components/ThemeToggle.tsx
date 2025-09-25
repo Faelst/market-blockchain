@@ -17,6 +17,7 @@ export default function ThemeToggle() {
     document.documentElement.setAttribute('data-theme', theme);
     try {
       localStorage.setItem('theme', theme);
+    // eslint-disable-next-line no-empty
     } catch {}
   }, [theme]);
 

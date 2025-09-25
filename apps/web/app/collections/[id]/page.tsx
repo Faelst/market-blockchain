@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { fetchJSON } from '@/lib/api';
 import Image from 'next/image';
 import NFTCard from '@/components/NFTCard';

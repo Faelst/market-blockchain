@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
@@ -56,7 +57,7 @@ export interface NFT {
   onSale: boolean;
   tokenId?: number;
   contractAddress?: string;
-  fileType: 'image' | 'video' | 'audio' | 'gif' | '3d';
+  fileType: "image" | "video" | "audio" | "gif" | "3d";
   fileSize?: number;
   dimensions?: {
     width: number;
@@ -90,7 +91,7 @@ export interface Collection {
   updatedAt: string;
 }
 
-export type TransactionType = 'mint' | 'sale' | 'transfer' | 'list' | 'unlist';
+export type TransactionType = "mint" | "sale" | "transfer" | "list" | "unlist";
 
 export interface Transaction {
   id: string;
@@ -127,7 +128,7 @@ export interface NFTQuery {
   minPrice?: number;
   maxPrice?: number;
   onSale?: boolean;
-  sort?: 'new' | 'price_asc' | 'price_desc';
+  sort?: "new" | "price_asc" | "price_desc";
 }
 
 export interface CollectionQuery {

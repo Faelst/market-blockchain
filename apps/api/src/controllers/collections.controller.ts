@@ -1,10 +1,11 @@
-import { Request, Response } from 'express';
-import { CollectionsService } from '../services/collections.service';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Request, Response } from "express";
+import { CollectionsService } from "../services/collections.service";
 
 export const CollectionsController = {
   async list(req: Request, res: Response) {
     const query = { ...req.query };
-    if ((req as any).user && query.creator === 'true') {
+    if ((req as any).user && query.creator === "true") {
       query.userId = (req as any).user.id;
     }
     const data = await CollectionsService.list(query);

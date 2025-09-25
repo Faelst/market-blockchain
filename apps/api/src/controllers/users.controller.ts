@@ -1,5 +1,6 @@
-import { Request, Response } from 'express';
-import { UsersService } from '../services/users.service';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Request, Response } from "express";
+import { UsersService } from "../services/users.service";
 
 export const UsersController = {
   async getById(req: Request, res: Response) {

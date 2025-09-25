@@ -1,9 +1,10 @@
-import { z } from 'zod';
-import { NFT } from '../models/NFT';
-import { User } from '../models/User';
-import { Collection } from '../models/Collection';
-import { Transaction } from '../models/Transaction';
-import { HttpError } from '../utils/errors';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { z } from "zod";
+import { NFT } from "../models/NFT";
+import { User } from "../models/User";
+import { Collection } from "../models/Collection";
+import { Transaction } from "../models/Transaction";
+import { HttpError } from "../utils/errors";
 
 const MintSchema = z.object({
   name: z.string().min(2),
@@ -23,45 +24,49 @@ const MintSchema = z.object({
   imageUrl: z.string().optional(),
   videoUrl: z.string().optional(),
   audioUrl: z.string().optional(),
-  fileType: z.enum(['image', 'video', 'audio', 'gif', '3d']).default('image'),
+  fileType: z.enum(["image", "video", "audio", "gif", "3d"]).default("image"),
   fileSize: z.number().optional(),
-  dimensions: z.object({
-    width: z.number(),
-    height: z.number(),
-  }).optional(),
+  dimensions: z
+    .object({
+      width: z.number(),
+      height: z.number(),
+    })
+    .optional(),
 });
 
 export const NftsService = {
   calculateRarityScore(attributes: any[]): number {
     const rarityWeights = {
-      'Common': 1,
-      'Uncommon': 2,
-      'Rare': 3,
-      'Epic': 4,
-      'Legendary': 5,
-      'Mythic': 6
+      Common: 1,
+      Uncommon: 2,
+      Rare: 3,
+      Epic: 4,
+      Legendary: 5,
+      Mythic: 6,
     };
-    
+
     const totalScore = attributes.reduce((sum, attr) => {
-      return sum + (rarityWeights[attr.rarity as keyof typeof rarityWeights] || 1);
+      return (
+        sum + (rarityWeights[attr.rarity as keyof typeof rarityWeights] || 1)
+      );
     }, 0);
-    
+
     return Math.min(100, Math.round((totalScore / attributes.length) * 10));
   },
 
   async list(query: any) {
     const page = Math.max(Number(query.page) || 1, 1);
     const limit = Math.min(Number(query.limit) || 12, 48);
-    const q = (query.q as string) || '';
+    const q = (query.q as string) || "";
     const category = (query.category as string) || undefined;
     const rarity = (query.rarity as string) || undefined;
     const minPrice = query.minPrice ? Number(query.minPrice) : undefined;
     const maxPrice = query.maxPrice ? Number(query.maxPrice) : undefined;
     const onSale =
-      query.onSale !== undefined ? query.onSale === 'true' : undefined;
-    const sort = (query.sort as string) || 'new';
-    const owner = query.owner === 'true' ? query.userId : undefined;
-    const creator = query.creator === 'true' ? query.userId : undefined;
+      query.onSale !== undefined ? query.onSale === "true" : undefined;
+    const sort = (query.sort as string) || "new";
+    const owner = query.owner === "true" ? query.userId : undefined;
+    const creator = query.creator === "true" ? query.userId : undefined;
 
     const filter: any = {};
     if (q) filter.$text = { $search: q };
@@ -72,11 +77,11 @@ export const NftsService = {
       if (maxPrice !== undefined) filter.price.$lte = maxPrice;
     }
     if (category) {
-      const colls = await Collection.find({ category }).select('_id').lean();
+      const colls = await Collection.find({ category }).select("_id").lean();
       filter.collectionId = { $in: colls.map((c) => c._id) };
     }
     if (rarity) {
-      filter['attributes.rarity'] = rarity;
+      filter["attributes.rarity"] = rarity;
     }
     if (owner) {
       filter.owner = owner;
@@ -92,23 +97,26 @@ export const NftsService = {
     };
 
     const cursor = NFT.find(filter)
-      .populate('creator owner collectionId')
+      .populate("creator owner collectionId")
       .skip((page - 1) * limit)
       .limit(limit);
     const [rawItems, total] = await Promise.all([
-      cursor.sort(sortMap[sort] || sortMap['new']).lean(),
+      cursor.sort(sortMap[sort] || sortMap["new"]).lean(),
       NFT.countDocuments(filter),
     ]);
 
-    const items = rawItems.map((n: any) => ({ ...n, collection: n.collectionId }));
+    const items = rawItems.map((n: any) => ({
+      ...n,
+      collection: n.collectionId,
+    }));
     return { items, total, page, pages: Math.ceil(total / limit) };
   },
 
   async getDetail(id: string) {
     const nftRaw: any = await NFT.findById(id)
-      .populate('creator owner collectionId')
+      .populate("creator owner collectionId")
       .lean();
-    if (!nftRaw) throw HttpError.notFound('Not found');
+    if (!nftRaw) throw HttpError.notFound("Not found");
     const nft = { ...nftRaw, collection: nftRaw.collectionId };
     const history = await Transaction.find({ nft: nftRaw._id })
       .sort({ createdAt: -1 })
@@ -120,7 +128,7 @@ export const NftsService = {
   async mint(userId: string, payload: unknown) {
     const data = MintSchema.parse(payload);
     const user = await User.findById(userId);
-    if (!user) throw HttpError.unauthorized('Unauthorized');
+    if (!user) throw HttpError.unauthorized("Unauthorized");
 
     let collection = undefined;
     if (data.collectionId) {
@@ -145,13 +153,15 @@ export const NftsService = {
       dimensions: data.dimensions,
       tokenId: Date.now(),
       contractAddress: `0x${Math.random().toString(16).substr(2, 40)}`,
-      rarityScore: data.attributes ? NftsService.calculateRarityScore(data.attributes) : 0,
+      rarityScore: data.attributes
+        ? NftsService.calculateRarityScore(data.attributes)
+        : 0,
       views: 0,
       likes: 0,
     });
 
     await Transaction.create({
-      type: 'mint',
+      type: "mint",
       nft: nft._id,
       to: user._id,
     });
@@ -161,18 +171,17 @@ export const NftsService = {
 
   async listForSale(userId: string, nftId: string, priceInput: any) {
     const price = Number(priceInput);
-    if (!price || price <= 0) throw HttpError.badRequest('Invalid price');
+    if (!price || price <= 0) throw HttpError.badRequest("Invalid price");
     const nft = await NFT.findById(nftId);
-    if (!nft) throw HttpError.notFound('Not found');
-    if (nft.owner.toString() !== userId)
-      throw HttpError.forbidden('Not owner');
+    if (!nft) throw HttpError.notFound("Not found");
+    if (nft.owner.toString() !== userId) throw HttpError.forbidden("Not owner");
 
     nft.price = price;
     nft.onSale = true;
     await nft.save();
 
     await Transaction.create({
-      type: 'list',
+      type: "list",
       nft: nft._id,
       from: nft.owner,
       price,
@@ -183,15 +192,14 @@ export const NftsService = {
 
   async unlist(userId: string, nftId: string) {
     const nft = await NFT.findById(nftId);
-    if (!nft) throw HttpError.notFound('Not found');
-    if (nft.owner.toString() !== userId)
-      throw HttpError.forbidden('Not owner');
+    if (!nft) throw HttpError.notFound("Not found");
+    if (nft.owner.toString() !== userId) throw HttpError.forbidden("Not owner");
 
     nft.onSale = false;
     await nft.save();
 
     await Transaction.create({
-      type: 'unlist',
+      type: "unlist",
       nft: nft._id,
       from: nft.owner,
     });
@@ -202,17 +210,17 @@ export const NftsService = {
   async buy(userId: string, nftId: string) {
     const buyer = await User.findById(userId);
     const nft = await NFT.findById(nftId);
-    if (!buyer || !nft) throw HttpError.notFound('Not found');
+    if (!buyer || !nft) throw HttpError.notFound("Not found");
     if (!nft.onSale || !nft.price)
-      throw HttpError.badRequest('NFT is not for sale');
+      throw HttpError.badRequest("NFT is not for sale");
     if (buyer._id.toString() === nft.owner.toString())
-      throw HttpError.badRequest('You own this NFT');
+      throw HttpError.badRequest("You own this NFT");
 
     const seller = await User.findById(nft.owner);
-    if (!seller) throw HttpError.badRequest('Seller missing');
+    if (!seller) throw HttpError.badRequest("Seller missing");
 
     if (buyer.balance < nft.price)
-      throw HttpError.badRequest('Insufficient balance');
+      throw HttpError.badRequest("Insufficient balance");
 
     buyer.balance -= nft.price;
     seller.balance += nft.price;
@@ -224,7 +232,7 @@ export const NftsService = {
     await nft.save();
 
     await Transaction.create({
-      type: 'sale',
+      type: "sale",
       nft: nft._id,
       from: seller._id,
       to: buyer._id,

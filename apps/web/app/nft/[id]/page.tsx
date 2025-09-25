@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Image from 'next/image';
 import { fetchJSON } from '@/lib/api';
 import BuyButton from '@/app/market/components/BuyButton';

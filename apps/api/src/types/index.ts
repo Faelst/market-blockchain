@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
@@ -95,7 +96,7 @@ export interface CreateCollectionRequest {
   bannerSeed?: string;
 }
 
-export type TransactionType = 'mint' | 'sale' | 'transfer' | 'list' | 'unlist';
+export type TransactionType = "mint" | "sale" | "transfer" | "list" | "unlist";
 
 export interface Transaction {
   id: string;
@@ -132,7 +133,7 @@ export interface NFTQuery {
   minPrice?: number;
   maxPrice?: number;
   onSale?: boolean;
-  sort?: 'new' | 'price_asc' | 'price_desc';
+  sort?: "new" | "price_asc" | "price_desc";
 }
 
 export interface CollectionQuery {

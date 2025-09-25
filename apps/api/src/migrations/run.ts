@@ -1,7 +1,8 @@
-import path from 'path';
-import fs from 'fs';
-import { connectDB } from '../db';
-import mongoose from 'mongoose';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import path from "path";
+import fs from "fs";
+import { connectDB } from "../db";
+import mongoose from "mongoose";
 
 const MIGRATIONS_DIR = path.join(__dirname);
 
@@ -9,7 +10,7 @@ const MigrationSchema = new mongoose.Schema({
   name: { type: String, unique: true },
   runAt: { type: Date, default: Date.now },
 });
-const Migration = mongoose.model('Migration', MigrationSchema);
+const Migration = mongoose.model("Migration", MigrationSchema);
 
 export async function main() {
   await connectDB();
@@ -24,7 +25,7 @@ export async function main() {
       continue;
     }
     const mod = await import(path.join(MIGRATIONS_DIR, file));
-    if (typeof (mod as any).up === 'function') {
+    if (typeof (mod as any).up === "function") {
       await (mod as any).up();
       await Migration.create({ name: file });
     }

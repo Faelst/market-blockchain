@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export class HttpError extends Error {
   status: number;
   code?: string;
@@ -10,35 +11,35 @@ export class HttpError extends Error {
     this.details = details;
   }
 
-  static badRequest(msg = 'Bad Request', code?: string, details?: any) {
+  static badRequest(msg = "Bad Request", code?: string, details?: any) {
     return new HttpError(400, msg, code, details);
   }
-  
-  static unauthorized(msg = 'Unauthorized', code?: string) {
+
+  static unauthorized(msg = "Unauthorized", code?: string) {
     return new HttpError(401, msg, code);
   }
-  
-  static forbidden(msg = 'Forbidden', code?: string) {
+
+  static forbidden(msg = "Forbidden", code?: string) {
     return new HttpError(403, msg, code);
   }
-  
-  static notFound(msg = 'Not Found', code?: string) {
+
+  static notFound(msg = "Not Found", code?: string) {
     return new HttpError(404, msg, code);
   }
-  
-  static conflict(msg = 'Conflict', code?: string) {
+
+  static conflict(msg = "Conflict", code?: string) {
     return new HttpError(409, msg, code);
   }
 
-  static tooManyRequests(msg = 'Too Many Requests', code?: string) {
+  static tooManyRequests(msg = "Too Many Requests", code?: string) {
     return new HttpError(429, msg, code);
   }
 
-  static internalServerError(msg = 'Internal Server Error', code?: string) {
+  static internalServerError(msg = "Internal Server Error", code?: string) {
     return new HttpError(500, msg, code);
   }
 
-  static serviceUnavailable(msg = 'Service Unavailable', code?: string) {
+  static serviceUnavailable(msg = "Service Unavailable", code?: string) {
     return new HttpError(503, msg, code);
   }
 
