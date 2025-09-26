@@ -44,9 +44,9 @@ OK - Extend `User` with `favorites: ObjectId[]` and endpoints:
 OK - `GET /users/me/favorites`, `POST/DELETE /users/me/favorites/:nftId`
 OK - Protect with JWT cookie; basic input validation
 
----
+## ABOUT THIS TOPIC I KNOW IMPLEMENTS, BUT I DIDNT DO BECAUSE I DIDNT HAVE TIME
 
-## Blockchain Developer
+## BECAUSE I DIDNT WANT TO LOOSE THE OPPORTUNITY TO SUBMIT THE TEST
 
 1. Mock blockchain adapter
 
