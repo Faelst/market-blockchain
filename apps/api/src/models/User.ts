@@ -1,4 +1,4 @@
-import { Schema, model, Document } from 'mongoose';
+import { Schema, model, Document, Types } from "mongoose";
 
 export interface IUser extends Document {
   email: string;
@@ -7,6 +7,7 @@ export interface IUser extends Document {
   bio?: string;
   avatarSeed?: string;
   balance: number;
+  favorites: Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -19,8 +20,9 @@ const userSchema = new Schema<IUser>(
     bio: { type: String },
     avatarSeed: { type: String },
     balance: { type: Number, default: 100 },
+    favorites: [{ type: Schema.Types.ObjectId, ref: "NFT", default: [] }],
   },
   { timestamps: true }
 );
 
-export const User = model<IUser>('User', userSchema);
+export const User = model<IUser>("User", userSchema);

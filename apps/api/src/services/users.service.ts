@@ -1,7 +1,10 @@
+/* eslint-disable import/order */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { z } from "zod";
 import { User } from "../models/User";
 import { HttpError } from "../utils/errors";
+import { NFT } from "../models";
+import { Types } from "mongoose";
+import { z } from "zod";
 
 const PatchMeSchema = z.object({
   bio: z.string().max(1000).optional(),
@@ -38,5 +41,56 @@ export const UsersService = {
       }
       throw err;
     }
+  },
+
+  async getFavorites(userId: string) {
+    const user = await User.findById(userId).select("favorites");
+    if (!user) throw HttpError.notFound("User not found.");
+
+    const ids = user.favorites?.map(String) ?? [];
+    if (ids.length === 0) return [];
+
+    const nfts = await NFT.find({ _id: { $in: ids } })
+      .populate("creator owner collectionId")
+      .lean();
+
+    const order = new Map(ids.map((id, i) => [id, i]));
+    const items = nfts
+      .map((n: any) => ({ ...n, collection: n.collectionId }))
+      .sort(
+        (a: any, b: any) =>
+          (order.get(String(a._id)) ?? 0) - (order.get(String(b._id)) ?? 0)
+      );
+
+    return items;
+  },
+
+  async addFavorite(userId: string, nftId: string) {
+    if (!Types.ObjectId.isValid(nftId))
+      throw HttpError.badRequest("Invalid NFT id");
+
+    const exists = await NFT.exists({ _id: nftId });
+    if (!exists) throw HttpError.notFound("NFT not found");
+
+    const res = await User.updateOne(
+      { _id: userId },
+      { $addToSet: { favorites: new Types.ObjectId(nftId) } }
+    );
+    if (res.matchedCount === 0) throw HttpError.notFound("User not found.");
+
+    return { ok: true };
+  },
+
+  async removeFavorite(userId: string, nftId: string) {
+    if (!Types.ObjectId.isValid(nftId))
+      throw HttpError.badRequest("Invalid NFT id");
+
+    const res = await User.updateOne(
+      { _id: userId },
+      { $pull: { favorites: new Types.ObjectId(nftId) } }
+    );
+    if (res.matchedCount === 0) throw HttpError.notFound("User not found.");
+
+    return { ok: true };
   },
 };

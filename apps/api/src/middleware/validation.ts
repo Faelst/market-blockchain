@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Request, Response, NextFunction } from "express";
 import { z } from "zod";
+import { Request, Response, NextFunction } from "express";
 import { HttpError } from "../utils/errors";
 
 export const schemas = {
@@ -138,8 +138,16 @@ export function validate(schema: z.ZodSchema) {
 export function validateQuery(schema: z.ZodSchema) {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
-      const validatedQuery = schema.parse(req.query);
-      req.query = validatedQuery as any;
+      const validatedQuery = schema.safeParse(req.query);
+
+      if (!validatedQuery.success) {
+        const errorMessage = validatedQuery.error.issues
+          .map((err) => `${err.path.join(".")}: ${err.message}`)
+          .join(", ");
+        return next(HttpError.badRequest(errorMessage));
+      }
+
+      res.locals.validatedQuery = validatedQuery.data;
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {

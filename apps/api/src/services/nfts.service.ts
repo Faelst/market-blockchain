@@ -6,6 +6,12 @@ import { Collection } from "../models/Collection";
 import { Transaction } from "../models/Transaction";
 import { HttpError } from "../utils/errors";
 
+type TxOpts = {
+  page?: number;
+  limit?: number;
+  type?: string;
+};
+
 const MintSchema = z.object({
   name: z.string().min(2),
   description: z.string().optional(),
@@ -242,10 +248,35 @@ export const NftsService = {
     return { ok: true };
   },
 
-  async transactions(nftId: string) {
-    const items = await Transaction.find({ nft: nftId })
+  async transactions(nftId: string, opts: TxOpts = {}) {
+    const page = Math.max(opts.page ?? 1, 1);
+    const limit = Math.min(Math.max(opts.limit ?? 20, 1), 100);
+
+    const filter: any = { nft: nftId };
+    if (opts.type) {
+      const t = String(opts.type).toLowerCase();
+      const allowed = new Set(["sale", "list", "unlist"]);
+      if (!allowed.has(t)) {
+        throw HttpError.badRequest(
+          "Invalid type filter. Use: sale | list | delist"
+        );
+      }
+      filter.type = t;
+    }
+
+    const cursor = Transaction.find(filter)
       .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
       .lean();
-    return items;
+
+    const [items, total] = await Promise.all([
+      cursor,
+      Transaction.countDocuments(filter),
+    ]);
+
+    return opts
+      ? { items, total, page, pages: Math.ceil(total / limit) }
+      : items;
   },
 };

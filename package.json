@@ -1,7 +1,11 @@
 {
   "name": "nft-marketplace-monorepo",
   "private": true,
+  "types": "express-request-id/index.d.ts",
   "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "concurrently -c \"cyan,magenta\" -n api,web \"pnpm --filter api dev\" \"pnpm --filter web dev\"",
     "build": "pnpm --filter api build && pnpm --filter web build",
@@ -29,5 +33,8 @@
     "prettier": "^3.6.2",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.44.1"
+  },
+  "dependencies": {
+    "lucide-react": "^0.544.0"
   }
 }

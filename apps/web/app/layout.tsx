@@ -31,10 +31,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className={`${inter.className} bg-ink min-h-screen`}>
+        <a
+          href="#content"
+          className="
+            sr-only focus:not-sr-only
+            focus:fixed focus:top-4 focus:left-4 focus:z-50
+            focus:rounded-lg focus:bg-white focus:text-black
+            focus:px-4 focus:py-2 focus:shadow-lg
+            focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2
+          "
+        >
+          Skip to content
+        </a>
+
         <div className='min-h-screen bg-hero-gradient flex flex-col'>
           <AuthProvider>
             <Header />
-            <main className='flex-1'>
+            <main id="content" tabIndex={-1} className='flex-1'>
               <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8'>
                 {children}
               </div>
@@ -55,7 +68,10 @@ function Header() {
           <Link href='/' className='flex items-center gap-3 group'>
             <span className='logo-dot group-hover:scale-105 transition-transform' />
           </Link>
-          <nav className='flex items-center gap-1 sm:gap-2'>
+          <nav className='flex items-center gap-1 sm:gap-2' aria-label="Primary">
+            <Link className='nav-link' href='/favorites'>
+              Favorites
+            </Link>
             <Link className='nav-link' href='/market'>
               Market
             </Link>

@@ -2,6 +2,18 @@
 import { Request, Response } from "express";
 import { NftsService } from "../services/nfts.service";
 
+function parseHistoryQuery(req: Request) {
+  const page = Math.max(parseInt(String(req.query.page ?? "1"), 10) || 1, 1);
+  const limitRaw = parseInt(String(req.query.limit ?? "20"), 10);
+  const limit = Math.min(Math.max(limitRaw || 20, 1), 100);
+
+  const rawType = (req.query.type as string | undefined)?.toLowerCase();
+
+  const type = rawType === "delist" ? "unlist" : rawType;
+
+  return { page, limit, type };
+}
+
 export const NftsController = {
   async list(req: Request, res: Response) {
     const query = { ...req.query };
@@ -47,5 +59,16 @@ export const NftsController = {
   async transactions(req: Request, res: Response) {
     const items = await NftsService.transactions(req.params.id);
     res.json(items);
+  },
+
+  async history(req: Request, res: Response) {
+    const { page, limit, type } = parseHistoryQuery(req);
+    const data = await NftsService.transactions(req.params.id, {
+      page,
+      limit,
+      type,
+    });
+
+    res.json(data);
   },
 };

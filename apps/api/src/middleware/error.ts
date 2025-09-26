@@ -2,6 +2,7 @@
 import { NextFunction, Request, Response } from "express";
 import { HttpError } from "../utils/errors";
 import { logger } from "../utils/logger";
+import { ZodError } from "zod";
 
 export function notFound(_req: Request, res: Response) {
   res.status(404).json({
@@ -17,10 +18,13 @@ export function errorHandler(
   res: Response,
   _next: NextFunction
 ) {
+  const requestId = (_req as any).requestId as string | undefined | undefined;
+
   logger.error("Error occurred:", {
     message: err.message,
     stack: err.stack,
     name: err.name,
+    requestId,
   });
 
   if (err instanceof HttpError) {
@@ -33,6 +37,7 @@ export function errorHandler(
       error: "Validation failed",
       code: "VALIDATION_ERROR",
       details: err.message,
+      requestId,
     });
   }
 
@@ -41,6 +46,7 @@ export function errorHandler(
       success: false,
       error: "Resource already exists",
       code: "DUPLICATE_KEY",
+      requestId,
     });
   }
 
@@ -49,6 +55,7 @@ export function errorHandler(
       success: false,
       error: "Invalid token",
       code: "INVALID_TOKEN",
+      requestId,
     });
   }
 
@@ -57,6 +64,20 @@ export function errorHandler(
       success: false,
       error: "Token expired",
       code: "TOKEN_EXPIRED",
+      requestId,
+    });
+  }
+
+  if (err instanceof ZodError) {
+    return res.status(400).json({
+      success: false,
+      error: "Validation failed",
+      code: "VALIDATION_ERROR",
+      details: err.issues.map((i) => ({
+        path: i.path.join("."),
+        message: i.message,
+      })),
+      requestId,
     });
   }
 
@@ -67,5 +88,6 @@ export function errorHandler(
         ? "Internal server error"
         : err.message,
     code: "INTERNAL_ERROR",
+    requestId,
   });
 }
